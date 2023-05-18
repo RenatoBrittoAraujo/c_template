@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "bcm2835.h": "c",
+        "time_util.h": "c",
+        "unistd.h": "c",
+        "*.tcc": "c",
+        "cstdio": "c",
+        "stdio.h": "c",
+        "proto.h": "c",
+        "thread_exec.h": "c",
+        "shared_util.h": "c",
+        "string.h": "c",
+        "comunicacao.h": "c"
+    },
+    "C_Cpp.intelliSenseEngineFallback": "enabled"
+}

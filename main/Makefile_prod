@@ -1,0 +1,50 @@
+CC=gcc
+TARGET=main_prod
+SRCEXT=c
+LIB=-l bcm2835 -l pthread
+INC=-I inc -I ../shared/inc
+BUILDDIR=obj
+SRCDIR=src
+SHARED_BUILDDIR=../shared/obj
+SHARED_SRCDIR=../shared/src
+
+SOURCES=$(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
+OBJECTS=$(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+SHARED_SOURCES=$(shell find $(SHARED_SRCDIR) -type f -name '*.$(SRCEXT)')
+SHARED_OBJECTS=$(shell find $(SHARED_BUILDDIR) -type f -name '*.o')
+
+include ../.env
+export $(shell sed 's/=.*//' ../.env)
+
+$(SHARED_BUILDDIR)/%.o: $(SHARED_SRCDIR)/%.$(SRCEXT)
+	@echo hey_3! $@ $<
+	make -f ../shared/Makefile -C ../shared dev 
+
+$(TARGET): $(OBJECTS)
+	@echo hey_1! $@ $^
+	$(CC) $(INC) $(SHARED_OBJECTS) $^ -o $(TARGET) $(LIB)
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@echo hey_2! $@ $<
+	$(CC) $(INC) -c -o $@ $<
+
+pid_run:
+	sh -c 'echo $$; exec $(EXEC)'
+
+run: 
+	ID_ANDAR=$(ID_ANDAR) $(shell sed '' ../.env) ./$(TARGET)
+
+clean:
+	@echo "----- sources = $(SOURCES)"
+	@echo "----- shared_sources = $(SHARED_SOURCES)"
+	@echo "----- items in shared srcdir = $(shell ls $(SHARED_SRCDIR))"
+	@echo "----- items in shared buildir = $(shell ls $(SHARED_BUILDDIR))"
+	@echo "----- objects = $(OBJECTS)"
+	@echo "----- shared objects = $(SHARED_OBJECTS)"
+	@echo "----- $(shell find $(SHARED_SRCDIR) -type f -name \"*.$(SRCEXT))\""
+
+	@find . -type f -name '*.o' -delete 2>/dev/null || true
+	@rm ./$(TARGET) 2>/dev/null || true
+
+	@echo " find . -type f -name '*.o' -delete"; find . -type f -name '*.o' -delete 2>/dev/null || true
+	@echo " rm ./$(TARGET)"; rm ./$(TARGET) 2>/dev/null || true

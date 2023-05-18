@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "vgdb",
+      "request": "launch",
+      "name": "vgdb main prod",
+      "debug": "verbose",
+      "program": "${workspaceFolder}/main/main_prod",
+      "args": [],
+      "cwd": "${workspaceFolder}/main",
+      "env": {
+        "ENV": "PROD",
+        "IP_MAIN": "127.0.0.1",
+        "PORT_MAIN": "6967",
+        "IP_ANDAR_1": "127.0.0.1",
+        "PORT_ANDAR_1": "6968",
+        "IP_ANDAR_2": "127.0.0.1",
+        "PORT_ANDAR_2": "6969"
+      }
+    }
+  ]
+}
