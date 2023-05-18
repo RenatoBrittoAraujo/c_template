@@ -1,8 +1,10 @@
-#ifndef THREAD_EXEC_H
-#define THREAD_EXEC_H 1
+#ifndef SHARED_THREADS_H
+#define SHARED_THREADS_H 1
 
 #include <stdlib.h>
 #include <pthread.h>
+
+#define STANDARD_THREAD_SIZE 10000
 
 struct ThreadSharedMemory
 {
@@ -40,8 +42,11 @@ struct ThreadCallParams
 };
 typedef struct ThreadCallParams ThreadCallParams;
 
-ThreadState *create_thread_state();
+// may set message size to -1 for standard frame size
+ThreadState *create_thread_state(size_t message_size);
+
 void start_thread(ThreadState *ts);
+
 void wait_thread_end(ThreadState *ts);
 
 #endif

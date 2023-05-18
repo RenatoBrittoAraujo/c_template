@@ -1,16 +1,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
-#include <proto.h>
 #include <string.h>
 #include <stdio.h>
-#include <time_util.h>
-#include <thread_exec.h>
-#include <comunicacao.h>
 #include <stdarg.h>
-#include <shared_util.h>
+
+#include <shared/inc/shared_util.h>
+#include <shared/inc/proto.h>
+#include <shared/inc/time.h>
+#include <shared/inc/threads.h>
+#include <shared/inc/tcp_ip.h>
+
+#define SHARED_THREADS_ERROR_INVALID_ENV 1001
+
+#define ENV_PROD 1
+#define ENV_DEV_TEST 2
+#define ENV_DEV 3
 
 char BUFF[10000];
 int GLOBAL_LOG_LEVEL = 0;
+int ENV = ENV_PROD;
 
 void set_level(int level)
 {
@@ -84,28 +92,37 @@ int is_prod()
     return !is_dev() && !is_dev_test();
 }
 
-// Sets all headers such that:
-// TEST_MODE =
-void set_env()
+error set_env(int new_env)
 {
+    if (new_env != ENV_DEV && new_env != ENV_DEV_TEST && new_env != ENV_PROD)
+    {
+        return handle_error(SHARED_THREADS_ERROR_INVALID_ENV,
+                            "[shared.shared_util] [set_env] invalid env");
+    }
+    ENV = new_env;
+}
+
+error get_env(int *env)
+{
+#ifdef TEST_MODE
+    log_print("ENV=dev_test", LEVEL_INFO);
+    *env = ENV_DEV_TEST return NULL;
+#else
     if (is_dev())
     {
-        log_print("environment is dev", LEVEL_INFO);
-#define TEST_MODE 0
-    }
-    else if (is_dev_test())
-    {
-        log_print("environment is dev_test", LEVEL_INFO);
-#define TEST_MODE 1
+        log_print("ENV=dev", LEVEL_INFO);
+        *env = ENV_DEV
     }
     else if (is_prod())
     {
-        log_print("environment is prod", LEVEL_INFO);
-#define TEST_MODE 0
+        log_print("ENV=prod", LEVEL_INFO);
+        *env = ENV_PROD
     }
     else
     {
-        log_print("[ERROR] [SHARED_UTIL] ENVIRONMENT NOT RECOGNIZED\n", LEVEL_ERROR);
-        exit(1);
+        return handle_error(SHARED_THREADS_ERROR_INVALID_ENV,
+                            "[shared.shared_util] [get_env] env not found");
     }
+    return NULL;
+#endif
 }
