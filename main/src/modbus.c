@@ -12,6 +12,7 @@
 #include <shared/inc/time.h>
 #include <shared/inc/garbage_collector.h>
 #include <shared/inc/shared_util.h>
+#include <main/inc/modbus.h>
 
 #define FRAME_SIZE 1000
 #define WAIT_REPONSE_MS 150000 // microsegundos
@@ -52,88 +53,17 @@ char *read_response(CommState *comm_state, int *size);
 
 // PROTOCOL
 
-struct Request
-{
-    int type;
-
-    int int_num;
-    float float_num;
-    char *str;
-    int str_size;
-
-    int frame_size;
-
-    int device_address;
-    int function_code;
-    int crc16;
-};
-typedef struct Request Request;
-
-struct Response
-{
-    int type;
-
-    int int_num;
-    float float_num;
-    char *str;
-    int str_size;
-
-    int device_address;
-    int function_code;
-    int crc16;
-};
-typedef struct Response Response;
-
-Request *make_request(int type, int inum, float fnum, char *sstr);
-char *parse_request(Request *req);
-Response *parse_response(Request *res, char *res_str);
-void print_request(Request *req);
-void print_response(Response *res);
+ModbusRequest *make_request(int type, int inum, float fnum, char *sstr);
+char *parse_request(ModbusRequest *req);
+ModbusResponse *parse_response(ModbusRequest *res, char *res_str);
+void print_request(ModbusRequest *req);
+void print_response(ModbusResponse *res);
 void print_bits(char *str, size_t size);
 short CRC16(short crc, char data);
 short calcula_CRC(unsigned char *commands, int size);
 
-// MAIN
-void test_protocol(Request *);
-
-int main()
-{
-    create_garbage_collector();
-
-    int req_count = 1;
-    Request *reqs[] = {
-        make_request(
-            REQ_TYPE_REQUEST_FLT,
-            -1, -1, NULL),
-        make_request(
-            REQ_TYPE_REQUEST_STR,
-            -1, -1, NULL),
-        make_request(
-            REQ_TYPE_REQUEST_INT,
-            -1, -1, NULL),
-        make_request(
-            REQ_TYPE_SEND_INT,
-            17, -1, NULL),
-        make_request(
-            REQ_TYPE_SEND_FLT,
-            -1, 69.420, NULL),
-        make_request(
-            REQ_TYPE_SEND_STR,
-            -1, -1, "imposto eh roubo"),
-    };
-
-    for (int i = 0; i < req_count; i++)
-    {
-        printf("--------------\n");
-        test_protocol(reqs[i]);
-    }
-
-    cleanup_garbage(NULL);
-
-    return 0;
-}
-
-void test_protocol(Request *req)
+// YOU NEED TO FREE THE RESPONSE POINTER
+ModbusResponse *make_modbus_request(ModbusRequest *req)
 {
     CommState *comm_state = create_comm_state();
 
@@ -153,10 +83,12 @@ void test_protocol(Request *req)
     char *res_str = read_response(comm_state, NULL);
     log_print("got res string\n", LEVEL_DEBUG);
 
-    Response *res = parse_response(req, res_str);
+    ModbusResponse *res = parse_response(req, res_str);
     log_print("got res\n", LEVEL_DEBUG);
 
     print_response(res);
+
+    return res;
 }
 
 CommState *create_comm_state()
@@ -244,9 +176,9 @@ char *read_response(CommState *comm_state, int *size)
 }
 
 // send -1 if number not applicable, null if str not applicable
-Request *make_request(int type, int inum, float fnum, char *sstr)
+ModbusRequest *make_request(int type, int inum, float fnum, char *sstr)
 {
-    Request *req = (Request *)g_malloc(sizeof(Request));
+    ModbusRequest *req = (ModbusRequest *)g_malloc(sizeof(ModbusRequest));
     req->type = type;
     req->device_address = DEVICE_ADDRESS;
 
@@ -290,7 +222,7 @@ int reverse(int x)
     return rev;
 }
 
-char *parse_request(Request *req)
+char *parse_request(ModbusRequest *req)
 {
     int req_size = 0;
     req_size += DEVICE_ADDRESS_BYTES + FUNCTION_CODE_BYTES + REQUEST_CODE_BYTES + CRC16_BYTES;
@@ -372,9 +304,9 @@ char *parse_request(Request *req)
     return req_str;
 }
 
-Response *parse_response(Request *req, char *res_str)
+ModbusResponse *parse_response(ModbusRequest *req, char *res_str)
 {
-    Response *res = (Response *)g_malloc(sizeof(Response));
+    ModbusResponse *res = (ModbusResponse *)malloc(sizeof(ModbusResponse));
 
     int res_pos = 0;
     memcpy(&res->device_address, &res_str[res_pos], DEVICE_ADDRESS_BYTES);
@@ -438,7 +370,7 @@ Response *parse_response(Request *req, char *res_str)
     return res;
 }
 
-void print_request(Request *req)
+void print_request(ModbusRequest *req)
 {
     printf("request: ");
     switch (req->type)
@@ -467,7 +399,7 @@ void print_request(Request *req)
     printf("\n");
 }
 
-void print_response(Response *res)
+void print_response(ModbusResponse *res)
 {
     printf("response: ");
     switch (res->type)
@@ -551,4 +483,39 @@ short calcula_CRC(unsigned char *commands, int size)
         crc = CRC16(crc, commands[i]);
     }
     return crc;
+}
+
+void test_modbus()
+{
+    create_garbage_collector();
+
+    int req_count = 1;
+    ModbusRequest *reqs[] = {
+        make_request(
+            REQ_TYPE_REQUEST_FLT,
+            -1, -1, NULL),
+        make_request(
+            REQ_TYPE_REQUEST_STR,
+            -1, -1, NULL),
+        make_request(
+            REQ_TYPE_REQUEST_INT,
+            -1, -1, NULL),
+        make_request(
+            REQ_TYPE_SEND_INT,
+            17, -1, NULL),
+        make_request(
+            REQ_TYPE_SEND_FLT,
+            -1, 69.420, NULL),
+        make_request(
+            REQ_TYPE_SEND_STR,
+            -1, -1, "imposto eh roubo"),
+    };
+
+    for (int i = 0; i < req_count; i++)
+    {
+        printf("--------------\n");
+        make_modbus_request(reqs[i]);
+    }
+
+    cleanup_garbage(NULL);
 }
