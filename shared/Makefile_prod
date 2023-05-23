@@ -1,8 +1,8 @@
 CC=gcc
 SRCEXT=c
-LIB=-l bcm2835 -l pthread
+LIB=-l pthread
 TARGET=compilelock_prod
-INC=-I inc
+INC=-I ../
 BUILDDIR=obj
 SRCDIR=src
 SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))

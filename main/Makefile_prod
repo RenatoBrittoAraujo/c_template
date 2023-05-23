@@ -1,8 +1,8 @@
 CC=gcc
-TARGET=dep_prod
+TARGET=main_prod
 SRCEXT=c
 LIB=-l bcm2835 -l pthread
-INC=-I inc -I ../shared/inc
+INC=-I ../
 BUILDDIR=obj
 SRCDIR=src
 SHARED_BUILDDIR=../shared/obj
@@ -33,6 +33,10 @@ pid_run:
 
 run: 
 	$(shell sed '' ../.env) ./$(TARGET)
+
+log:
+	echo "objects =        $(OBJECTS)"
+	echo "shared_objects = $(SHARED_OBJECTS)"
 
 clean:
 	@find . -type f -name '*.o' -delete 2>/dev/null || true

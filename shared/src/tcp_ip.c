@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <shared_util.h>
 
+#include <shared/inc/shared_util.h>
 #include <shared/inc/tcp_ip.h>
 
 #define SHARED_TCP_IP_ERROR_SOCKET_CREATION_FAILED 1000
@@ -18,7 +18,7 @@
 #define SHARED_TCP_IP_ERROR_ACCEPT_FAILED 1006
 
 // res_buff may be NULL, response will not be set
-error call_tcp_ip_port(char *request, char *ip, int port, char *res_buff)
+t_error call_tcp_ip_port(char *request, char *ip, int port, char *res_buff)
 {
     log_print("[shared.tcp_ip] [listen_tcp_ip_port] call_tcp_ip_port()\n", LEVEL_DEBUG);
     size_t message_size = sizeof(char) * MAX_FRAME_SIZE;
@@ -54,7 +54,7 @@ error call_tcp_ip_port(char *request, char *ip, int port, char *res_buff)
     return NULL;
 }
 
-error listen_tcp_ip_port(char *(*get_response)(void *), char *ip, int port)
+t_error listen_tcp_ip_port(char *(*get_response)(void *), char *ip, int port)
 {
     log_print("[shared.tcp_ip] [listen_tcp_ip_port] listen_tcp_ip_port\n", LEVEL_DEBUG);
 

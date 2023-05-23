@@ -1,9 +1,11 @@
-#include <shared/inc/errors.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <shared/inc/shared_util.h>
+#include <shared/inc/errors.h>
+
 // exits with error code
-error fatal_error(error err_num, char *err_msg)
+t_error fatal_error(t_error err_num, char *err_msg)
 {
     int size = strlen(err_msg);
     char buff[size + 50];
@@ -14,7 +16,7 @@ error fatal_error(error err_num, char *err_msg)
     exit(err_num);
 }
 
-error handle_error(error err_num, char *err_msg)
+t_error handle_error(t_error err_num, char *err_msg)
 {
     int size = strlen(err_msg);
     char buff[size + 50];

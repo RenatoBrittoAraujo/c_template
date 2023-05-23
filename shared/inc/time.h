@@ -9,13 +9,9 @@
 #endif
 #endif
 
-#ifndef time_t
-#define time_t long int
-#endif
+#include <bits/types/time_t.h>
 
 #define SECOND 1000 // milissegundos
-
-int IGNORE_TIME_WAIT = 0;
 
 void set_time_wait_ignore(int ignore);
 

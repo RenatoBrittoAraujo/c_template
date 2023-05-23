@@ -3,11 +3,10 @@
 
 #include <stdlib.h>
 
-#include <shared/inc/shared_util.h>
+typedef unsigned long t_error;
+#define NO_ERROR 0
 
-typedef unsigned long error;
-
-error fatal_error(error err_num, char *err_msg);
-error handle_error(error err_num, char *err_msg);
+t_error fatal_error(t_error err_num, char *err_msg);
+t_error handle_error(t_error err_num, char *err_msg);
 
 #endif

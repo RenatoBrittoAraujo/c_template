@@ -3,7 +3,7 @@ TARGET=dev_test_dep
 SRCEXT=c
 LIB=
 
-INC=-I inc
+INC=-I ../
 BUILDDIR=obj
 SRCDIR=src
 SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))

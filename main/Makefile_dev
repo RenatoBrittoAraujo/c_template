@@ -1,8 +1,8 @@
 CC=gcc
-TARGET=dep_dev
+TARGET=main_dev
 SRCEXT=c
 LIB=-l bcm2835 -l pthread
-INC=-I inc -I ../shared/inc
+INC=-I ../
 BUILDDIR=obj
 SRCDIR=src
 SHARED_BUILDDIR=../shared/obj

@@ -9,6 +9,7 @@
 #include <shared/inc/time.h>
 #include <shared/inc/threads.h>
 #include <shared/inc/tcp_ip.h>
+#include <shared/inc/errors.h>
 
 #define SHARED_THREADS_ERROR_INVALID_ENV 1001
 
@@ -72,19 +73,24 @@ int read_env_int_index(char *name, int index)
     return atoi(val);
 }
 
-char *get_env()
+char *get_env_str()
 {
     return read_env_str_index("ENV", -1);
 }
 
+int get_env_int()
+{
+    return ENV;
+}
+
 int is_dev()
 {
-    return strcmp("DEV", get_env()) == 0;
+    return strcmp("DEV", get_env_str()) == 0;
 }
 
 int is_dev_test()
 {
-    return strcmp("DEV_TEST", get_env()) == 0;
+    return strcmp("DEV_TEST", get_env_str()) == 0;
 }
 
 int is_prod()
@@ -92,7 +98,7 @@ int is_prod()
     return !is_dev() && !is_dev_test();
 }
 
-error set_env(int new_env)
+t_error set_env(int new_env)
 {
     if (new_env != ENV_DEV && new_env != ENV_DEV_TEST && new_env != ENV_PROD)
     {
@@ -102,27 +108,28 @@ error set_env(int new_env)
     ENV = new_env;
 }
 
-error get_env(int *env)
+t_error get_env(int *env)
 {
 #ifdef TEST_MODE
     log_print("ENV=dev_test", LEVEL_INFO);
-    *env = ENV_DEV_TEST return NULL;
+    *env = ENV_DEV_TEST;
+    return NULL;
 #else
     if (is_dev())
     {
         log_print("ENV=dev", LEVEL_INFO);
-        *env = ENV_DEV
+        *env = ENV_DEV;
     }
     else if (is_prod())
     {
         log_print("ENV=prod", LEVEL_INFO);
-        *env = ENV_PROD
+        *env = ENV_PROD;
     }
     else
     {
         return handle_error(SHARED_THREADS_ERROR_INVALID_ENV,
                             "[shared.shared_util] [get_env] env not found");
     }
-    return NULL;
+    return NO_ERROR;
 #endif
 }

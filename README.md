@@ -1,7 +1,5 @@
 # {project_name}
 
-<!-- Project Description -->
-
 ## Como rodar
 
 ### Excutar em dev

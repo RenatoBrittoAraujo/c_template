@@ -1,5 +1,8 @@
-#include <shared/inc/time.h>
 #include <time.h>
+
+#include <shared/inc/time.h>
+
+int IGNORE_TIME_WAIT = 0;
 
 void set_time_wait_ignore(int ignore_time_wait)
 {
